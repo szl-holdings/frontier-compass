@@ -29,6 +29,7 @@ on:
   pull_request:
     paths:
       - "tools/compass/**"
+      - "requirements/frontier-observer-tests.lock"
       - ".github/workflows/frontier-compass.yml"
 
 permissions:
