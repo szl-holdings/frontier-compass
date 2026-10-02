@@ -3,6 +3,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import szl_frontier_compass as C  # noqa: E402
 
@@ -145,10 +147,42 @@ def test_freshness_uses_newest_date_and_skips_history(monkeypatch):
     assert [f["target"] for f in F.items] == ["https://a/old"] and F.items[0]["sev"] == "P1"
 
 
-def test_provenance_normalisation_ignores_scripts_and_crlf():
-    a = C._norm_lines("<html>\r\n<body>x   \r\n<script>beacon()</script></body>\r\n")
-    b = C._norm_lines("<html>\n<body>x\n</body>\n")
+def test_provenance_normalisation_keeps_scripts_and_ignores_crlf():
+    a = C._norm_lines("<html>\r\n<body>x   \r\n<script>app()</script></body>\r\n")
+    b = C._norm_lines("<html>\n<body>x\n<script>app()</script></body>\n")
     assert a == b
+    assert "<script>app()</script></body>" in a
+
+
+@pytest.mark.parametrize("served_script,canonical_script", [
+    ("<script>app('changed')</script>", "<script>app('original')</script>"),
+    ("", "<script>app()</script>"),
+    ("<script>app()</script>", ""),
+    ('<script src="/changed-app.js"></script>', '<script src="/original-app.js"></script>'),
+    ("<script>\napp('changed')\n</script>", "<script>\napp('original')\n</script>"),
+])
+def test_provenance_reports_undeclared_application_script_delta(monkeypatch, served_script, canonical_script):
+    served = f"<html>\n<body>same landing</body>\n{served_script}\n</html>\n"
+    canonical = f"<html>\n<body>same landing</body>\n{canonical_script}\n</html>\n"
+    pages = {C.LANDING_PAIR[0]: served, C.LANDING_PAIR[1]: canonical}
+    monkeypatch.setattr(C, "fetch", lambda url, **kwargs: {"status": 200, "body": pages[url]})
+    findings = C.Findings()
+    result = C.provenance(findings)
+    assert not result["byte_identical"]
+    assert result["served_sha256"] != result["canonical_sha256"]
+    assert result["undeclared_delta_lines"] > 0
+    assert len(findings.items) == 1 and findings.items[0]["cat"] == "provenance"
+
+
+def test_provenance_retains_declared_edge_injection_exception(monkeypatch):
+    canonical = "<html>\n<body>same landing</body>\n<script>app()</script>\n</html>\n"
+    served = canonical.replace("</html>", '<script src="https://static.cloudflareinsights.com/beacon.min.js"></script>\n</html>')
+    pages = {C.LANDING_PAIR[0]: served, C.LANDING_PAIR[1]: canonical}
+    monkeypatch.setattr(C, "fetch", lambda url, **kwargs: {"status": 200, "body": pages[url]})
+    findings = C.Findings()
+    result = C.provenance(findings)
+    assert not result["byte_identical"] and result["extra_lines"] == 1
+    assert result["undeclared_delta_lines"] == 0 and findings.items == []
 
 
 def test_redaction_and_fingerprint_stability():
