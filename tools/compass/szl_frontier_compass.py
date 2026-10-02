@@ -10,7 +10,7 @@ Checks what no single-repo audit can see:
   2. FRESHNESS          newest dated snapshot per page older than --stale-days (history pages exempt).
   3. LINK INTEGRITY     crawl both origins (+ sitemap); dead internal pages with referrers; GitHub links to
                         private/missing/archived repos; HF repo links probed individually; Space hosts probed.
-  4. PROVENANCE         served landing vs canonical GitHub bytes, normalised, injected <script> deltas declared.
+  4. PROVENANCE         served landing vs canonical GitHub bytes, normalised, only declared edge deltas ignored.
   5. WEB + DNS POSTURE  headers (HSTS strength, CSP scope), HTTP->HTTPS first hop, RFC 9116 security.txt
                         (Contact + unexpired Expires), SPF/DMARC/CAA/DNSSEC for web AND mail domains.
   6. NARRATIVE          no-JS placeholder text nodes, readability, whole-word jargon density, words before CTA.
@@ -805,7 +805,8 @@ def link_integrity(external, referrers, repos, hf, est_state, hf_org, gh_org, ca
 
 
 def _norm_lines(body):
-    body = re.sub(r"(?is)<script\b[^>]*>.*?</script\s*>", "", body)
+    # Application scripts are source content; only provenance's declared edge
+    # exceptions may exclude a delta, never every script before comparison.
     return [ln.rstrip() for ln in body.replace("\r\n", "\n").split("\n")]
 
 
@@ -831,7 +832,7 @@ def provenance(F):
            "canonical_sha256": hashlib.sha256(canon["body"].encode()).hexdigest(),
            "byte_identical": served["body"] == canon["body"],
            "extra_lines": len(extra), "missing_lines": len(missing), "undeclared_delta_lines": len(undeclared),
-           "method": "line-set diff after stripping <script> blocks, CRLF and trailing whitespace"}
+           "method": "line-set diff after normalising CRLF and trailing whitespace; scripts retained"}
     if undeclared:
         F.add("provenance", "P1" if len(undeclared) > 3 else "P2", LANDING_PAIR[0],
               f"Served landing differs from canonical beyond declared deltas ({len(undeclared)} lines)",
