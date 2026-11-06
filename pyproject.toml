@@ -1,3 +1,8 @@
+# Packages the Frontier Compass CLI (tools/compass/szl_frontier_compass.py, stdlib only) as one module plus the
+# `szl-frontier-compass` command; `pip install -e '.[test]'` also installs pytest for the full suite.
+# This repository is private and has no tags or releases: 0.1.0 is the unreleased development version, and
+# "Private :: Do Not Upload" makes PyPI reject an accidental upload. The compass reports its own payload id
+# (VERSION in the module), which this number does not replace.
 [build-system]
 requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
@@ -11,18 +16,32 @@ requires-python = ">=3.11"
 license = "Apache-2.0"
 authors = [{ name = "Stephen Lutar", email = "stephen@szlholdings.com" }]
 dependencies = []
+classifiers = [
+  "Private :: Do Not Upload",
+  "Environment :: Console",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+]
+
+[project.optional-dependencies]
+# Same floor as the hash-locked CI pin in requirements/frontier-observer-tests.lock.
+test = ["pytest>=9.0.3"]
+
+[project.scripts]
+szl-frontier-compass = "szl_frontier_compass:main"
 
 [project.urls]
 Homepage = "https://a-11-oy.com"
-Repository = "https://github.com/szl-holdings/frontier-compass"
+Source = "https://github.com/szl-holdings/frontier-compass"
+Issues = "https://github.com/szl-holdings/frontier-compass/issues"
 
 [tool.setuptools]
-packages = []
-
-[tool.ruff]
-line-length = 120
-target-version = "py311"
-extend-exclude = ["build", "dist", ".venv", "node_modules"]
+package-dir = { "" = "tools/compass" }
+py-modules = ["szl_frontier_compass"]
 
 [tool.pytest.ini_options]
-minversion = "7.0"
+minversion = "9.0.3"
+testpaths = ["tools/compass", "tests"]
