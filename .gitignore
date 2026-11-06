@@ -1,0 +1,17 @@
+# Python bytecode and test caches. Importing a module or running pytest writes these next to the sources.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# Packaging outputs (pip install -e . writes *.egg-info; python -m build writes build/ and dist/)
+build/
+dist/
+*.egg-info/
+
+# Compass run outputs: the CLI default (--out szl-compass-out) and the --out used in CI and tools/compass/README.md
+szl-compass-out/
+compass-out/
