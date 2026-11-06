@@ -8,7 +8,8 @@
 
 Please report security vulnerabilities to: **security@szlholdings.com**
 
-**Alternate channel:** [Open a private security advisory](https://github.com/szl-holdings/frontier-compass/security/advisories/new) on GitHub.
+E-mail is the only channel for this repository. It is private, so GitHub private vulnerability reporting
+(security advisories) is not available for it.
 
 Please include:
 
@@ -31,32 +32,38 @@ We ask that you give us a reasonable opportunity to investigate and patch before
 | Version | Supported |
 |---------|-----------|
 | Current main | ✅ |
-| Tagged releases (last 90 days) | ✅ |
-| Older tagged releases | Best effort |
+
+This repository has no tagged releases yet. Add a row here when the first one is cut.
 
 ## Scope
 
-This policy covers all software published under `szl-holdings/*`. For the upstream Defense Unicorns ecosystem we contribute to (UDS, Pepr, Zarf — note: SZL does NOT ship an Iron Bank-hardened base image; runtime uses a vanilla UBI9-minimal base, Iron Bank parity tracked-not-baked), please follow their respective security policies.
+In scope (what this repository contains):
 
-In scope:
-
-- Source code, container images, and infrastructure-as-code in this repository.
-- Authentication, authorization, data handling, and cryptographic implementations.
-- Supply-chain risks affecting build artifacts produced from this repository.
+- `tools/compass/szl_frontier_compass.py`, a stdlib-only CLI that fetches and parses untrusted content: pages on
+  a-11-oy.com and a11oy.net, the links found on them, the GitHub and Hugging Face APIs, and DNS-over-HTTPS
+  answers (cloudflare-dns.com, dns.google).
+- Token handling. `GITHUB_TOKEN` / `GH_TOKEN` and `HF_TOKEN` are read from the environment and added to
+  api.github.com and huggingface.co `/api/` requests. Token-shaped strings are redacted from fetch errors, findings,
+  receipts and issue bodies.
+- The opt-in write paths. `--file-issues` refuses to run without `SZL_COMPASS_CONFIRM=FILE_WORK_ORDERS` and a token,
+  files at most 50 issues and neutralises @-mentions. `--receipts` appends to a local receipt file.
+- `.github/workflows/`. Both workflows set top-level `permissions: contents: read`. Only the CodeQL job adds
+  `security-events: write`, to upload its results. The compass workflow checks out with
+  `persist-credentials: false`. Also in scope: the hash-locked test dependencies
+  (`requirements/frontier-observer-tests.lock`, installed with `--require-hashes`).
 
 Out of scope:
 
+- Issues in the surfaces the compass audits (the two sites, other `szl-holdings` repositories, the `SZLHOLDINGS`
+  Hugging Face org). Report those under the org policy linked below.
 - Third-party dependencies (please report upstream).
 - Social engineering, physical attacks, or denial-of-service against shared infrastructure.
 - Findings that require physical access to a user's device.
 
-## Governance
+## Evidence boundary
 
-Vulnerability disclosures are governed by SZL Doctrine v7:
-
-- No fake security claims; positive status must be verifiable.
-- `STAGED-ADVISORY` label for gates not yet machine-checked.
-- DSSE receipts on every governance decision.
+Compass results are `UNSIGNED_HONEST`: a hash-chained receipt root over the findings, not a signature and not a
+DSSE envelope (see `tools/compass/README.md`). A compass report is an observation, not an attestation.
 
 Canonical org policy: https://github.com/szl-holdings/.github/blob/main/SECURITY.md
 This file applies that policy to `szl-holdings/frontier-compass`.
