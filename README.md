@@ -13,3 +13,5 @@
 [Product](https://a-11-oy.com) · [Proof](https://a11oy.net) · [GitHub organization](https://github.com/szl-holdings)
 <!-- /szl:header -->
 Read-only nightly observer: claims, Lean reproduction, links, posture (moved from .github#776)
+
+Estate on Hugging Face: models, datasets and Spaces are published under the [SZLHOLDINGS](https://huggingface.co/SZLHOLDINGS) org.
