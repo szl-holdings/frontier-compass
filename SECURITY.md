@@ -40,8 +40,10 @@ This repository has no tagged releases yet. Add a row here when the first one is
 In scope (what this repository contains):
 
 - `tools/compass/szl_frontier_compass.py`, a stdlib-only CLI that fetches and parses untrusted content: pages on
-  a-11-oy.com and a11oy.net, the links found on them, the GitHub and Hugging Face APIs, and DNS-over-HTTPS
-  answers (cloudflare-dns.com, dns.google).
+  a-11-oy.com and a11oy.net, the links found on them, the GitHub and Hugging Face APIs, raw files (from
+  raw.githubusercontent.com: `lean_numbers.json`, the `lutar-lean` sources at the locked commit and at main, the
+  a11oy landing page and the org profile README; from huggingface.co: model, dataset and Space README cards), and
+  DNS-over-HTTPS answers (cloudflare-dns.com, dns.google).
 - Token handling. `GITHUB_TOKEN` / `GH_TOKEN` and `HF_TOKEN` are read from the environment and added to
   api.github.com and huggingface.co `/api/` requests. Token-shaped strings are redacted from fetch errors, findings,
   receipts and issue bodies.
