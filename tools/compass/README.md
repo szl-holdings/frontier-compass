@@ -25,6 +25,15 @@ python -m pytest -q tools/compass/test_szl_frontier_compass.py
 Outputs: `compass_report.json`, `BOARD_MEMO.md`, `WORK_ORDERS.md` (stable fingerprints per finding),
 and `--baseline <previous compass_report.json>` adds a new/resolved diff.
 
+Installed use is optional. The tool needs only the standard library; the `test` extra adds pytest. From the
+repository root:
+
+```bash
+python -m pip install -e '.[test]'
+szl-frontier-compass --help   # the same CLI as tools/compass/szl_frontier_compass.py
+python -m pytest -q           # every test module: tools/compass and tests (testpaths in pyproject.toml)
+```
+
 ## Writes (off by default)
 
 `--file-issues` files grouped P0/P1 work orders in `szl-holdings/.github` only when
