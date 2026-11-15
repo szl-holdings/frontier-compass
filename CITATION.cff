@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software, please credit SZL Holdings."
+title: "frontier-compass - Read-only nightly observer: claims, Lean reproduction, links, posture (moved from .github#776) (SZL Holdings governed-AI estate)"
+authors:
+  - name: SZL Holdings
+type: software
+license: Apache-2.0
+repository-code: "https://github.com/szl-holdings/frontier-compass"
+keywords:
+  - governed-ai
+  - provenance
+  - szl-holdings
